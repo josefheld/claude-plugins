@@ -1,0 +1,39 @@
+# --- Secrets ---
+# Nothing secret belongs in this directory in the first place. These lines are
+# a second line of defence, not the first one: API keys live in ~/.zshrc, never
+# in a folder that gets committed, deployed or synced.
+.env
+.env.*
+*.local
+*.pem
+*.key
+
+# --- Python (machine-specific, regenerate via the skill's setup.sh) ---
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# --- Node (in case a skill ships a JS helper) ---
+node_modules/
+npm-debug.log*
+
+# --- Skill output artifacts ---
+council-report-*.html
+council-transcript-*.md
+*.test.png
+*.test.webp
+/tmp-output/
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
+*.sublime-*
