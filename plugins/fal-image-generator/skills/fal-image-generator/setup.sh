@@ -52,8 +52,8 @@ echo "  Installing dependencies..."
 echo "${GREEN}✓${RESET} Dependencies installed"
 
 # ---- API key check ----
-# Bewusst KEIN Prefix des Keys ausgeben — der Wert landet sonst in Terminal-
-# Scrollback, CI-Logs und Agent-Transkripten. Länge reicht als Beweis.
+# Deliberately do NOT print a prefix of the key: otherwise the value ends up
+# in terminal scrollback, CI logs, and agent transcripts. Length is proof enough.
 if [[ -z "${FAL_KEY:-}" ]]; then
   echo ""
   echo "${YELLOW}⚠${RESET}  FAL_KEY not set in current shell."

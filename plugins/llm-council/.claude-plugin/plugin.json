@@ -1,0 +1,12 @@
+{
+  "name": "llm-council",
+  "description": "Run a decision past five advisors (Contrarian, First Principles, Expansionist, Outsider, Executor) who analyze it independently, peer-review each other anonymously, and get synthesized into one verdict by a chairman.",
+  "author": {
+    "name": "josefheld",
+    "url": "https://github.com/josefheld"
+  },
+  "homepage": "https://github.com/josefheld/claude-skills",
+  "repository": "https://github.com/josefheld/claude-skills",
+  "license": "MIT",
+  "keywords": ["decision", "review", "council", "brainstorming", "second-opinion"]
+}

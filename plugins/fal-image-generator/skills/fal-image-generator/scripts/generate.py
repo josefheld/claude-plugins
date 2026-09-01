@@ -3,12 +3,12 @@
 fal.ai Image Generator
 ======================
 
-Generiert Bilder via fal.ai (FLUX-Familie).
-Aufruf bevorzugt via venv:
+Generates images via fal.ai (FLUX family).
+Preferred invocation via venv:
 
     ./venv/bin/python3 generate.py --prompt "..." --output ...
 
-Oder direkt wenn venv-Wrapper aktiv:
+Or directly if the venv wrapper is active:
 
     ./generate.py --prompt "..." --output ...
 """
@@ -30,33 +30,33 @@ except ImportError as e:
     sys.exit(2)
 
 
-# ---- Konfiguration ----
-# Endpoint-IDs verifiziert gegen
+# ---- Configuration ----
+# Endpoint IDs verified against
 #   https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=<id>
-# Wenn fal ein Modell abkündigt, hier updaten (Schema dort gegenprüfen).
+# If fal deprecates a model, update here (cross-check the schema there).
 MODELS = {
     "flux-dev":     "fal-ai/flux/dev",
     "flux-schnell": "fal-ai/flux/schnell",
     "flux-pro":     "fal-ai/flux-pro/v1.1-ultra",
 }
 
-# Image-to-Image-Gegenstück — wird bei --reference automatisch gewählt.
+# Image-to-image counterpart, selected automatically with --reference.
 MODELS_I2I = {
     "flux-dev":     "fal-ai/flux/dev/image-to-image",
-    # ponytail: schnell hat kein eigenes i2i-Endpoint, fällt auf dev zurück.
+    # ponytail: schnell has no dedicated i2i endpoint, falls back to dev.
     "flux-schnell": "fal-ai/flux/dev/image-to-image",
     "flux-pro":     "fal-ai/flux-pro/kontext",
 }
 
-# Modelle mit nativem image_size {width,height}. Der Rest kennt nur aspect_ratio.
+# Models with native image_size {width,height}. The rest only know aspect_ratio.
 NATIVE_DIMENSIONS = {"flux-dev", "flux-schnell"}
 
-# aspect_ratio-Enum von fal-ai/flux-pro/kontext — kennt kein 4:5.
+# aspect_ratio enum of fal-ai/flux-pro/kontext, does not know 4:5.
 KONTEXT_ASPECTS = {"21:9", "16:9", "4:3", "3:2", "1:1", "2:3", "3:4", "9:16", "9:21"}
-ASPECT_FALLBACK = {"4:5": "3:4"}  # nächstliegend; post_process cropt auf exakt
+ASPECT_FALLBACK = {"4:5": "3:4"}  # closest match; post_process crops to exact afterward
 
 ASPECT_DIMENSIONS = {
-    # Ziel-Dimensionen pro (aspect, resolution)
+    # Target dimensions per (aspect, resolution)
     ("1:1",  "1K"): (1024, 1024),
     ("1:1",  "2K"): (2048, 2048),
     ("1:1",  "4K"): (4096, 4096),
@@ -74,10 +74,10 @@ ASPECT_DIMENSIONS = {
     ("3:4",  "4K"): (3072, 4096),
 }
 
-# ponytail: FLUX ist auf ~1-2MP trainiert. Oberhalb davon wiederholt es Motive
-# statt Details zu liefern. Also bei max. 2048 langer Kante generieren und den
-# Rest per LANCZOS hochziehen. Upgrade-Pfad wenn 4K nativ gebraucht wird:
-# ein echtes Upscaler-Endpoint (fal-ai/clarity-upscaler) dazwischenschalten.
+# ponytail: FLUX is trained on ~1-2MP. Beyond that it repeats motifs instead
+# of delivering detail. So generate at a max long edge of 2048 and upscale
+# the rest via LANCZOS. Upgrade path if native 4K is ever needed: put a real
+# upscaler endpoint (fal-ai/clarity-upscaler) in between.
 GEN_MAX_LONG_SIDE = 2048
 
 MAX_RETRIES = 3
@@ -158,18 +158,18 @@ def target_dims(aspect: str, resolution: str) -> tuple[int, int]:
 
 
 def generation_dims(aspect: str, resolution: str) -> tuple[int, int]:
-    """Dimensionen, die wir tatsächlich bei fal anfragen (auf Modell-Sweetspot gedeckelt)."""
+    """Dimensions we actually request from fal (capped to the model's sweet spot)."""
     w, h = target_dims(aspect, resolution)
     long_side = max(w, h)
     if long_side <= GEN_MAX_LONG_SIDE:
         return w, h
     scale = GEN_MAX_LONG_SIDE / long_side
-    # auf Vielfache von 16 runden — Diffusion-Modelle mögen das
+    # round to a multiple of 16, diffusion models like that
     return (max(16, round(w * scale / 16) * 16), max(16, round(h * scale / 16) * 16))
 
 
 def resolve_reference(ref: str) -> str:
-    """Lokalen Pfad zu fal-CDN hochladen; URLs unverändert durchreichen."""
+    """Upload a local path to the fal CDN; pass URLs through unchanged."""
     if ref.startswith(("http://", "https://", "data:")):
         return ref
     path = Path(ref)
@@ -194,8 +194,8 @@ def build_arguments(
     strength: float,
     seed: int | None,
 ) -> dict:
-    """Argument-Dict pro Endpoint bauen — die Schemas unterscheiden sich deutlich."""
-    # PNG anfragen und lokal umkodieren: verlustfreie Quelle für die WebP/JPG-Stufe.
+    """Build the argument dict per endpoint, the schemas differ significantly."""
+    # Request PNG and re-encode locally: lossless source for the WebP/JPG stage.
     args: dict = {"prompt": prompt, "num_images": 1, "output_format": "png"}
     if seed is not None:
         args["seed"] = seed
@@ -219,7 +219,7 @@ def build_arguments(
 
 
 def run_with_retry(endpoint: str, arguments: dict, *, verbose: bool = False) -> dict:
-    """fal_client.run mit Retry auf transiente Fehler."""
+    """fal_client.run with retry on transient errors."""
     last_err = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -227,19 +227,19 @@ def run_with_retry(endpoint: str, arguments: dict, *, verbose: bool = False) -> 
         except Exception as e:
             last_err = e
             err_str = str(e).lower()
-            # Retry-bar: Rate-Limit, transiente Server-Fehler, Queue-Timeouts
+            # Retryable: rate limit, transient server errors, queue timeouts
             if any(s in err_str for s in ["429", "rate", "timeout", "500", "502", "503", "unavailable"]):
                 wait = BASE_BACKOFF_SEC * (2 ** (attempt - 1))
                 log(f"  ⏳ Transient error (attempt {attempt}/{MAX_RETRIES}), retry in {wait}s: {e}", err=True)
                 time.sleep(wait)
                 continue
-            # Nicht-retry-bar: Auth, Guthaben leer, Safety-Block, ungültiges Schema
+            # Not retryable: auth, empty balance, safety block, invalid schema
             raise
     raise RuntimeError(f"Generation failed after {MAX_RETRIES} attempts: {last_err}")
 
 
 def fetch_image(result: dict) -> Image.Image | None:
-    """Erstes Bild aus dem fal-Result laden. fal liefert CDN-URLs, keine Bytes."""
+    """Load the first image from the fal result. fal delivers CDN URLs, not bytes."""
     images = result.get("images") or []
     if not images:
         return None
@@ -255,7 +255,7 @@ def fetch_image(result: dict) -> Image.Image | None:
         log(f"❌ Could not download generated image: {e}", err=True)
         sys.exit(1)
     img = Image.open(BytesIO(data))
-    img.load()  # decode jetzt, damit Fehler hier auftauchen, nicht später
+    img.load()  # decode now, so errors surface here, not later
     return img
 
 
@@ -266,11 +266,11 @@ def post_process(
     *,
     skip: bool = False,
 ) -> Image.Image:
-    """Crop auf Aspect-Ratio + Resize auf Ziel-Auflösung.
+    """Crop to aspect ratio + resize to target resolution.
 
-    Bei flux-dev/schnell ist das meist ein No-Op (fal liefert schon die exakten
-    Maße). Es bleibt drin als Garantie für i2i- und aspect_ratio-Endpoints, die
-    ihre Dimensionen selbst wählen.
+    For flux-dev/schnell this is mostly a no-op (fal already delivers the exact
+    dimensions). It stays in as a guarantee for i2i and aspect_ratio endpoints,
+    which choose their own dimensions.
     """
     if skip:
         return img
@@ -284,7 +284,7 @@ def post_process(
     cur_aspect = cur_w / cur_h
     target_aspect = target_w / target_h
 
-    # Center-Crop wenn Aspect nicht stimmt
+    # Center crop if the aspect ratio doesn't match
     if abs(cur_aspect - target_aspect) > 0.01:
         if cur_aspect > target_aspect:
             new_w = int(cur_h * target_aspect)
@@ -302,7 +302,7 @@ def post_process(
 
 
 def save_image(img: Image.Image, output_path: str, fmt: str | None, quality: int) -> None:
-    """Speichert das Bild im gewünschten Format mit Quality-Control."""
+    """Saves the image in the desired format with quality control."""
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -319,19 +319,19 @@ def save_image(img: Image.Image, output_path: str, fmt: str | None, quality: int
     if save_format in ("WEBP", "JPEG"):
         save_kwargs["quality"] = max(1, min(100, quality))
     if save_format == "WEBP":
-        save_kwargs["method"] = 6  # höchste Kompressions-Qualität (langsamer, kleiner)
+        save_kwargs["method"] = 6  # highest compression quality (slower, smaller)
 
     img.save(output_path, format=save_format, **save_kwargs)
 
 
 def self_test() -> None:
-    """Offline-Checks für die Dimensions-Logik. Kostet nichts, ruft nichts auf."""
-    # Jede Aspect/Resolution-Kombination existiert und passt zum Seitenverhältnis
+    """Offline checks for the dimension logic. Costs nothing, calls nothing."""
+    # Every aspect/resolution combination exists and matches the ratio
     for (aspect, res), (w, h) in ASPECT_DIMENSIONS.items():
         aw, ah = (int(x) for x in aspect.split(":"))
         assert abs((w / h) - (aw / ah)) < 0.02, f"{aspect}@{res} = {w}x{h} is not {aspect}"
 
-    # 1K/2K bleiben unangetastet, 4K wird auf den Sweetspot gedeckelt
+    # 1K/2K stay untouched, 4K is capped to the sweet spot
     assert generation_dims("16:9", "1K") == (1280, 720)
     assert generation_dims("16:9", "2K") == (1920, 1080)
     gw, gh = generation_dims("16:9", "4K")
@@ -339,23 +339,23 @@ def self_test() -> None:
     assert abs((gw / gh) - (16 / 9)) < 0.02, f"cap broke aspect: {gw}x{gh}"
     assert gw % 16 == 0 and gh % 16 == 0, f"not multiple of 16: {gw}x{gh}"
 
-    # post_process liefert exakt die Zielmaße, egal was reinkommt
+    # post_process delivers exactly the target dimensions, no matter what comes in
     for src in [(1024, 1024), (1920, 1080), (900, 1600)]:
         out = post_process(Image.new("RGB", src), "16:9", "2K")
         assert out.size == (1920, 1080), f"{src} -> {out.size}, expected (1920, 1080)"
 
-    # flux-dev bekommt image_size, flux-pro bekommt aspect_ratio
+    # flux-dev gets image_size, flux-pro gets aspect_ratio
     a = build_arguments("flux-dev", MODELS["flux-dev"], "x", "16:9", "2K", None, 0.85, None)
     assert a["image_size"] == {"width": 1920, "height": 1080}, a
     b = build_arguments("flux-pro", MODELS["flux-pro"], "x", "16:9", "2K", None, 0.85, None)
     assert "image_size" not in b and b["aspect_ratio"] == "16:9", b
 
-    # kontext kennt kein 4:5 -> Fallback auf 3:4, post_process cropt danach exakt
+    # kontext doesn't know 4:5 -> fallback to 3:4, post_process crops to exact afterward
     c = build_arguments("flux-pro", MODELS_I2I["flux-pro"], "x", "4:5", "1K", "https://x/y.png", 0.85, None)
     assert c["aspect_ratio"] == "3:4", c
     assert c["image_url"] == "https://x/y.png"
 
-    # i2i bekommt strength, t2i nicht
+    # i2i gets strength, t2i doesn't
     d = build_arguments("flux-dev", MODELS_I2I["flux-dev"], "x", "1:1", "1K", "https://x/y.png", 0.5, None)
     assert d["strength"] == 0.5 and "image_size" not in d, d
 

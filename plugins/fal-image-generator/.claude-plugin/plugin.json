@@ -1,0 +1,12 @@
+{
+  "name": "fal-image-generator",
+  "description": "Generate images via fal.ai (FLUX family): text-to-image, image-to-image with a reference, native custom dimensions (1K/2K/4K), WebP/JPG/PNG output. Requires a FAL_KEY and costs money per call.",
+  "author": {
+    "name": "josefheld",
+    "url": "https://github.com/josefheld"
+  },
+  "homepage": "https://github.com/josefheld/claude-skills",
+  "repository": "https://github.com/josefheld/claude-skills",
+  "license": "MIT",
+  "keywords": ["images", "fal.ai", "flux", "image-generation", "text-to-image"]
+}

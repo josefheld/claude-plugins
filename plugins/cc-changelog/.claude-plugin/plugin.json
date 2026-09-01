@@ -1,0 +1,12 @@
+{
+  "name": "cc-changelog",
+  "description": "Fetch the latest Claude Code release notes and summarize only what matters for your stack and role. Builds a profile once, then filters every future changelog through it.",
+  "author": {
+    "name": "josefheld",
+    "url": "https://github.com/josefheld"
+  },
+  "homepage": "https://github.com/josefheld/claude-skills",
+  "repository": "https://github.com/josefheld/claude-skills",
+  "license": "MIT",
+  "keywords": ["changelog", "release-notes", "claude-code", "updates"]
+}

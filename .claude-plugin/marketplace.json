@@ -1,18 +1,44 @@
 {
   "name": "josefheld",
   "owner": {
-    "name": "Josef Held",
+    "name": "josefheld",
     "url": "https://github.com/josefheld"
   },
   "metadata": {
-    "description": "General-purpose Claude Code skills by Josef Held.",
-    "version": "1.0.0"
+    "description": "Claude Code plugins by josefheld.",
+    "version": "1.1.0"
   },
   "plugins": [
     {
-      "name": "claude-skills",
-      "source": "./",
-      "description": "Multi-model advisory council, personalized Claude Code changelog reader, and fal.ai image generator."
+      "name": "llm-council",
+      "source": "./plugins/llm-council",
+      "description": "Run a decision past five advisors who analyze it independently, peer-review each other anonymously, and get synthesized into one verdict.",
+      "license": "MIT",
+      "keywords": ["decision", "review", "council", "brainstorming"]
+    },
+    {
+      "name": "cc-changelog",
+      "source": "./plugins/cc-changelog",
+      "description": "Fetch the latest Claude Code release notes and summarize only what matters for your stack and role.",
+      "license": "MIT",
+      "keywords": ["changelog", "release-notes", "claude-code"]
+    },
+    {
+      "name": "fal-image-generator",
+      "source": "./plugins/fal-image-generator",
+      "description": "Generate images via fal.ai (FLUX family): text-to-image, image-to-image, native custom dimensions, WebP/JPG/PNG. Needs a FAL_KEY.",
+      "license": "MIT",
+      "keywords": ["images", "fal.ai", "flux", "generation"]
+    },
+    {
+      "name": "plugctl",
+      "source": "./plugins/plugctl",
+      "description": "Refresh every marketplace and then update each installed plugin, because 'claude plugin update' has no --all.",
+      "license": "MIT",
+      "keywords": ["plugins", "update", "maintenance", "bulk"]
     }
-  ]
+  ],
+  "renames": {
+    "update-plugins": "plugctl"
+  }
 }

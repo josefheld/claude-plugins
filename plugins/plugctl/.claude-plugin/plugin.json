@@ -1,0 +1,12 @@
+{
+  "name": "plugctl",
+  "description": "Bulk maintenance for Claude Code plugins: refresh every marketplace, then update each installed plugin",
+  "author": {
+    "name": "josefheld",
+    "url": "https://github.com/josefheld"
+  },
+  "homepage": "https://github.com/josefheld/claude-skills",
+  "repository": "https://github.com/josefheld/claude-skills",
+  "license": "MIT",
+  "keywords": ["plugins", "update", "maintenance", "bulk"]
+}
