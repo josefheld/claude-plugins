@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 #
 # Setup script for fal-image-generator skill.
-# Creates a Python virtualenv inside scripts/, installs dependencies,
-# verifies the API key is set, and runs the offline self-test.
+# Creates a Python virtualenv, installs dependencies, verifies the API key is
+# set, and runs the offline self-test.
+#
+# The venv lives OUTSIDE the skill directory on purpose. A marketplace install
+# unpacks the plugin into a versioned cache directory that is replaced on every
+# update, so a venv kept next to the code would be deleted by each update. The
+# cache path below survives that.
 #
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="$SKILL_DIR/scripts"
-VENV_DIR="$SCRIPTS_DIR/venv"
+VENV_DIR="${FAL_IMAGE_VENV:-${XDG_CACHE_HOME:-$HOME/.cache}/fal-image-generator/venv}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 # ---- colors ----
@@ -20,6 +25,7 @@ fi
 
 echo "${BOLD}fal-image-generator setup${RESET}"
 echo "  skill dir: $SKILL_DIR"
+echo "  venv:      $VENV_DIR"
 echo ""
 
 # ---- Python check ----
@@ -41,6 +47,7 @@ fi
 
 if [[ ! -d "$VENV_DIR" ]]; then
   echo "  Creating venv..."
+  mkdir -p "$(dirname "$VENV_DIR")"
   "$PYTHON_BIN" -m venv "$VENV_DIR"
   echo "${GREEN}✓${RESET} venv created"
 fi

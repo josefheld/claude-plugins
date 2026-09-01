@@ -70,19 +70,30 @@ Check before a bulk run (e.g. batch articles). Rules of thumb that hold regardle
 ## Setup (one-time)
 
 ```bash
-# In the skill directory
-cd "$(dirname $(readlink ~/.claude/skills/fal-image-generator/SKILL.md))"
-bash setup.sh
+bash "${CLAUDE_PLUGIN_ROOT}/skills/fal-image-generator/setup.sh"
 ```
 
 `setup.sh` creates the venv, installs dependencies, checks the API key, and runs the offline self-test.
 
+**The venv lives outside the plugin**, at `~/.cache/fal-image-generator/venv`. That is deliberate: a marketplace install unpacks the plugin into a versioned cache directory that is replaced on every update, so a venv sitting next to the code would be wiped by each update. Override the location with `FAL_IMAGE_VENV` if you need to.
+
 Manually, if needed:
 ```bash
-python3 -m venv scripts/venv
-./scripts/venv/bin/pip install -r scripts/requirements.txt
+python3 -m venv ~/.cache/fal-image-generator/venv
+~/.cache/fal-image-generator/venv/bin/pip install -r "${CLAUDE_PLUGIN_ROOT}/skills/fal-image-generator/scripts/requirements.txt"
 export FAL_KEY="your-key-here"   # make it permanent in ~/.zshrc
 ```
+
+## How to invoke it
+
+Two paths matter. Set them once, then every example below is a one-liner:
+
+```bash
+PY="${XDG_CACHE_HOME:-$HOME/.cache}/fal-image-generator/venv/bin/python3"
+GEN="${CLAUDE_PLUGIN_ROOT}/skills/fal-image-generator/scripts/generate.py"
+```
+
+Always call the script through `$PY`, never through its shebang: the dependencies live in the venv, not in the system Python. If `$PY` does not exist, setup has not run yet.
 
 ### Key Handling
 
@@ -115,7 +126,7 @@ export FAL_KEY="your-key-here"   # make it permanent in ~/.zshrc
 
 ### Text-to-image (default)
 ```bash
-./scripts/generate.py \
+"$PY" "$GEN" \
   --prompt "Minimalist tech illustration on dark navy background, golden geometric lines, abstract circuit pattern" \
   --output hero.webp \
   --resolution 2K \
@@ -125,7 +136,7 @@ export FAL_KEY="your-key-here"   # make it permanent in ~/.zshrc
 
 ### Image-to-image with reference
 ```bash
-./scripts/generate.py \
+"$PY" "$GEN" \
   --prompt "Same style, but with focus on cloud architecture instead" \
   --reference existing-hero.webp \
   --strength 0.7 \
@@ -136,7 +147,7 @@ export FAL_KEY="your-key-here"   # make it permanent in ~/.zshrc
 
 ### Cheap mode for drafts/iterations
 ```bash
-./scripts/generate.py \
+"$PY" "$GEN" \
   --prompt "Quick draft" \
   --output draft.png \
   --model flux-schnell
@@ -144,7 +155,7 @@ export FAL_KEY="your-key-here"   # make it permanent in ~/.zshrc
 
 ### Reproducible
 ```bash
-./scripts/generate.py --prompt "..." --output a.webp --seed 42
+"$PY" "$GEN" --prompt "..." --output a.webp --seed 42
 ```
 
 ---
@@ -172,7 +183,7 @@ fal only delivers `jpeg` or `png`. The skill always requests **PNG** (lossless s
 A content or blog skill calls the generator directly via CLI. Typical for a hero image (1280×720):
 
 ```bash
-./scripts/generate.py \
+"$PY" "$GEN" \
   --prompt "<thematic prompt>" \
   --output "$SITE_ROOT/img/blog/${slug}-hero.webp" \
   --resolution 1K \
@@ -238,7 +249,7 @@ When fal releases a new model or deprecates an old one:
 1. Cross-check the schema: `curl "https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=<new-id>"`
 2. Update `MODELS` / `MODELS_I2I` in `scripts/generate.py`
 3. If it supports free-form dimensions: add the alias to `NATIVE_DIMENSIONS`
-4. `./scripts/generate.py --self-test` (free) + a real test call
+4. `"$PY" "$GEN" --self-test` (free) + a real test call
 5. Commit + push
 
 Endpoint IDs in this skill verified against the fal OpenAPI schemas: **August 2026**.
