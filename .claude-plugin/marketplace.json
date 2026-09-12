@@ -31,14 +31,14 @@
       "keywords": ["images", "fal.ai", "flux", "generation"]
     },
     {
-      "name": "plugctl",
-      "source": "./plugins/plugctl",
+      "name": "update-plugins",
+      "source": "./plugins/update-plugins",
       "description": "Refresh every marketplace and then update each installed plugin, because 'claude plugin update' has no --all.",
       "license": "MIT",
       "keywords": ["plugins", "update", "maintenance", "bulk"]
     }
   ],
   "renames": {
-    "update-plugins": "plugctl"
+    "plugctl": "update-plugins"
   }
 }

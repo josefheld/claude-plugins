@@ -1,5 +1,5 @@
 {
-  "name": "plugctl",
+  "name": "update-plugins",
   "description": "Bulk maintenance for Claude Code plugins: refresh every marketplace, then update each installed plugin",
   "author": {
     "name": "josefheld",

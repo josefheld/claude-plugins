@@ -13,13 +13,13 @@ Then pick what you want:
 | [`llm-council`](./plugins/llm-council/) | `/plugin install llm-council@josefheld` | Runs a decision past five advisors (Contrarian, First Principles, Expansionist, Outsider, Executor) who analyze it independently, peer-review each other anonymously, and get synthesized into one verdict by a chairman. Adapted from [Karpathy's LLM Council](https://github.com/karpathy/llm-council), using Claude sub-agents with different thinking lenses instead of different models. |
 | [`cc-changelog`](./plugins/cc-changelog/) | `/plugin install cc-changelog@josefheld` | Fetches the latest Claude Code release notes and summarizes only what matters for your stack and role. Builds a profile once, then filters every future changelog through it. |
 | [`fal-image-generator`](./plugins/fal-image-generator/) | `/plugin install fal-image-generator@josefheld` | Generates images via [fal.ai](https://fal.ai) (FLUX family). Text-to-image, image-to-image with a reference, native custom dimensions (1K/2K/4K), WebP/JPG/PNG output. |
-| [`plugctl`](./plugins/plugctl/) | `/plugin install plugctl@josefheld` | Refreshes every marketplace, then updates each installed plugin one by one, because `claude plugin update` has no `--all`. |
+| [`update-plugins`](./plugins/update-plugins/) | `/plugin install update-plugins@josefheld` | Refreshes every marketplace, then updates each installed plugin one by one, because `claude plugin update` has no `--all`. |
 
 Separate plugins on purpose: you only pay the context cost of the ones you install.
 
 ## Setup
 
-`llm-council`, `cc-changelog` and `plugctl` work immediately. `plugctl` needs `claude` and `node` on your PATH, nothing else.
+`llm-council`, `cc-changelog` and `update-plugins` work immediately. `update-plugins` needs `claude` and `node` on your PATH, nothing else.
 
 `fal-image-generator` calls a paid external API and needs one-time setup:
 
@@ -59,7 +59,7 @@ plugins/<name>/
   skills/<name>/SKILL.md           the skill itself
 ```
 
-`plugctl` deviates: its `SKILL.md` sits at the plugin root and it ships `scripts/`, because it is a real tool rather than a prompt document.
+`update-plugins` deviates: its `SKILL.md` sits at the plugin root and it ships `scripts/`, because it is a real tool rather than a prompt document.
 
 No plugin declares a `version`. That is deliberate: without one the commit SHA acts as the version, so every push reaches installed users. A `version` field would mean nothing updates until the number is bumped by hand. `claude plugin validate` warns about this, and the warning is safe to ignore here.
 

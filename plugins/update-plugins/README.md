@@ -1,4 +1,4 @@
-# plugctl
+# update-plugins
 
 A Claude Code skill that refreshes every marketplace and then updates each installed plugin one by one.
 
@@ -17,18 +17,20 @@ If you don't need a skill for this: per-marketplace auto-update under `/plugin` 
 
 ### Via the marketplace (recommended)
 
-plugctl ships from the [josefheld/claude-skills](https://github.com/josefheld/claude-skills) marketplace:
+update-plugins ships from the [josefheld/claude-skills](https://github.com/josefheld/claude-skills) marketplace:
 
 ```bash
 claude plugin marketplace add josefheld/claude-skills
-claude plugin install plugctl@josefheld
+claude plugin install update-plugins@josefheld
 ```
 
-Invoke it as `/plugctl:update`. Update it with `claude plugin update plugctl@josefheld`, or let the plugin update itself, since it shows up in its own list.
+Invoke it as `/update-plugins`. Update it with `claude plugin update update-plugins@josefheld`, or let the plugin update itself, since it shows up in its own list.
 
 `plugin.json` deliberately sets no `version` field, so the commit SHA serves as the version. Every push is an update, with no version number to maintain.
 
-> Moved from the standalone `josefheld/plugctl` repo. If you still have that one, remove it first: `claude plugin uninstall plugctl@plugctl && claude plugin marketplace remove plugctl`.
+> Previously named `plugctl`. The marketplace carries the rename, so an installed copy follows along on the next `claude plugin marketplace update josefheld`.
+>
+> Before that it lived in the standalone `josefheld/plugctl` repo. If you still have that one, remove it first: `claude plugin uninstall plugctl@plugctl && claude plugin marketplace remove plugctl`.
 
 ### As a plain skill
 
@@ -36,10 +38,10 @@ No marketplace, but also no version tracking:
 
 ```bash
 git clone https://github.com/josefheld/claude-skills.git
-ln -s "$PWD/claude-skills/plugins/plugctl" ~/.claude/skills/plugctl
+ln -s "$PWD/claude-skills/plugins/update-plugins" ~/.claude/skills/update-plugins
 ```
 
-Invoke it as `/plugctl:update`, update it with `git pull`. Note that installed this way it runs as an `@skills-dir` plugin, which the script skips, so it cannot update itself.
+Invoke it as `/update-plugins`, update it with `git pull`. Note that installed this way it runs as an `@skills-dir` plugin, which the script skips, so it cannot update itself.
 
 ### Without Claude Code
 

@@ -1,5 +1,5 @@
 ---
-name: update
+name: update-plugins
 description: Refreshes every Claude Code marketplace and then updates each installed plugin one by one, because "claude plugin update" has no --all flag. Use this skill whenever the user wants to update their plugins, bring them up to date, or check whether any plugin is outdated, for example "update my plugins", "are my plugins current", "check for plugin updates", "what's outdated", or the German equivalents "update meine plugins", "plugins aktualisieren", "sind meine plugins aktuell". Also use it when the user only mentions refreshing marketplaces, since a marketplace refresh alone does not update the installed plugins.
 ---
 
