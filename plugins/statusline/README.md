@@ -31,6 +31,20 @@ Why point at the plugin instead of copying to `~/.claude`: the copy would go sta
 
 Which plugin path matters. A marketplace install runs out of `~/.claude/plugins/cache/<marketplace>/<plugin>/<sha>/`, and that `<sha>` is the commit, so it changes with every update and the entry would point at a directory that no longer exists. The installer rewrites it to the marketplace clone at `~/.claude/plugins/marketplaces/<marketplace>/plugins/<plugin>/`, which stays put and is refreshed by the same update. It prints the path it used.
 
+## Use
+
+There is nothing to invoke: Claude Code runs the command on every redraw and prints the line. What you do invoke is the skill, in plain language, whenever the line should change:
+
+```
+set up my statusline
+statusline kürzen, nur model, context und git
+hide the rate limits
+what's in my statusline right now?
+remove the statusline
+```
+
+The skill runs the installer with the right arguments and tells you to restart, because `settings.json` is read at startup.
+
 ## Configure
 
 Segments are chosen and ordered by `CC_STATUSLINE_SEGMENTS`:
@@ -82,7 +96,7 @@ All five are environment variables in front of the command, not a config file:
 
 A config file would mean a second `jq` call on every redraw, which is exactly what the single-parse design avoids.
 
-## Installer options
+### Installer options
 
 | Command | Effect |
 |---|---|

@@ -13,7 +13,7 @@ So with many plugins installed, you end up running the second command once per p
 
 If you don't need a skill for this: per-marketplace auto-update under `/plugin` > Marketplaces does the same thing automatically after session start. This repo is for people who want it on demand and deterministic.
 
-## Installation
+## Install
 
 ### Via the marketplace (recommended)
 
@@ -55,7 +55,23 @@ The script also runs standalone:
 
 `claude` and `node` on your PATH. No `jq`, no npm dependencies.
 
-## Options
+## Use
+
+Ask for it in plain language, or call the slash command:
+
+```
+/update-plugins
+update meine plugins
+sind meine plugins aktuell?
+```
+
+The skill runs `scripts/update-plugins.sh`, which refreshes every marketplace first and then walks the installed plugins one by one. Asking only whether something is outdated runs it with `--dry-run`, which changes nothing.
+
+Each output line is marked `OK` updated, `==` already current, `!!` failed with the reason indented below, `--` skipped. A `[scope: project]` note means the plugin was not installed at user scope.
+
+When at least one plugin was updated, run `/reload-plugins`. Without it the current session keeps using the old cache directories for hooks and MCP servers.
+
+## Configure
 
 | Option | Effect |
 | --- | --- |

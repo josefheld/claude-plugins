@@ -1,61 +1,23 @@
 # claude-plugins
 
-`claude plugin update` has no `--all`. Updating twenty installed plugins means twenty commands. That is what `update-plugins` fixes, and it is one of five plugins in this [Claude Code](https://docs.claude.com/en/docs/claude-code) marketplace.
+Five plugins for [Claude Code](https://docs.claude.com/en/docs/claude-code), in one marketplace. They are separate plugins on purpose: you only pay the context cost of the ones you install.
 
 ```
 /plugin marketplace add josefheld/claude-plugins
-/plugin install update-plugins@josefheld
+/plugin install <plugin>@josefheld
 ```
 
-Then `/update-plugins` walks the whole list for you:
+## The plugins
 
-```console
-$ update-plugins.sh --dry-run
-==> Refreshing marketplaces
---  cc-changelog@josefheld (dry-run)
---  code-review@claude-plugins-official (dry-run)
---  commit-commands@claude-plugins-official (dry-run)
---  fal-image-generator@josefheld (dry-run)
---  frontend-design@claude-plugins-official (dry-run)
---  llm-council@josefheld (dry-run)
---  playwright@claude-plugins-official (dry-run)
---  superpowers@superpowers-marketplace (dry-run)
---  update-plugins@josefheld (dry-run)
-
-Dry-run beendet, nichts veraendert.
-```
-
-Drop `--dry-run` and it actually updates. Pick what you want:
-
-| Plugin | Install | What it does |
+| Plugin | What it does | Needs |
 |---|---|---|
-| [`llm-council`](./plugins/llm-council/) | `/plugin install llm-council@josefheld` | Runs a decision past five advisors (Contrarian, First Principles, Expansionist, Outsider, Executor) who analyze it independently, peer-review each other anonymously, and get synthesized into one verdict by a chairman. Adapted from [Karpathy's LLM Council](https://github.com/karpathy/llm-council), using Claude sub-agents with different thinking lenses instead of different models. |
-| [`cc-changelog`](./plugins/cc-changelog/) | `/plugin install cc-changelog@josefheld` | Fetches the latest Claude Code release notes and summarizes only what matters for your stack and role. Builds a profile once, then filters every future changelog through it. |
-| [`fal-image-generator`](./plugins/fal-image-generator/) | `/plugin install fal-image-generator@josefheld` | Generates images via [fal.ai](https://fal.ai) (FLUX family). Text-to-image, image-to-image with a reference, native custom dimensions (1K/2K/4K), WebP/JPG/PNG output. |
-| [`statusline`](./plugins/statusline/) | `/plugin install statusline@josefheld` | A one-line statusline: model with thinking mode, context window bar, cost, both rate limits with reset times, directory, git branch with staged and modified counts, session runtime, active agent. Which segments appear and in which order is one environment variable, not a code edit. Based on [danielmackay/claude-code-statusline](https://github.com/danielmackay/claude-code-statusline). |
-| [`update-plugins`](./plugins/update-plugins/) | `/plugin install update-plugins@josefheld` | Refreshes every marketplace, then updates each installed plugin one by one, because `claude plugin update` has no `--all`. |
+| [`statusline`](./plugins/statusline/) | One status line with model, context window, cost, both rate limits, git state and session runtime. Segments are configuration, not a code edit. | `jq`, one install command |
+| [`update-plugins`](./plugins/update-plugins/) | Refreshes every marketplace, then updates each installed plugin one by one, because `claude plugin update` has no `--all`. | `claude`, `node` |
+| [`llm-council`](./plugins/llm-council/) | Runs a decision past five advisors with incompatible thinking lenses, lets them peer-review each other anonymously, and has a chairman synthesize one verdict. | nothing |
+| [`cc-changelog`](./plugins/cc-changelog/) | Fetches the Claude Code release notes and filters every entry through your roles, stack and language. | nothing |
+| [`fal-image-generator`](./plugins/fal-image-generator/) | Generates images via [fal.ai](https://fal.ai) (FLUX): text-to-image, image-to-image, real custom dimensions, WebP/JPG/PNG. Paid API. | `FAL_KEY`, `setup.sh` |
 
-Separate plugins on purpose: you only pay the context cost of the ones you install.
-
-## Setup
-
-`llm-council`, `cc-changelog` and `update-plugins` work immediately. `update-plugins` needs `claude` and `node` on your PATH, nothing else.
-
-`statusline` needs `jq` and one command, because a statusline is not a plugin component: Claude Code reads it from `statusLine` in `settings.json`, so something has to write that entry. The plugin's installer does it, after backing the file up:
-
-```bash
-sh ~/.claude/plugins/marketplaces/josefheld/plugins/statusline/scripts/install-statusline.sh
-```
-
-Pass a segment list to get a shorter line (`... install-statusline.sh model,context,cost,git`). Pointing the setting at the plugin directory instead of copying the script to `~/.claude` means plugin updates reach the script too.
-
-`fal-image-generator` calls a paid external API and needs one-time setup:
-
-```bash
-bash "$(dirname "$(readlink -f ~/.claude/plugins/*/fal-image-generator*/skills/fal-image-generator/SKILL.md)")/setup.sh"
-```
-
-Or simply ask Claude to run the skill's `setup.sh` once. It creates a Python venv, installs the dependencies, checks the key, and runs an offline self-test. Get a key at [fal.ai/dashboard/keys](https://fal.ai/dashboard/keys), then add `export FAL_KEY=...` to your shell profile. Every generation costs money, see [fal.ai/pricing](https://fal.ai/pricing).
+Each plugin's own README covers the two questions that matter: **how to use it**, and **what you can configure**. This page stays an index.
 
 ## Where API keys go
 
@@ -81,21 +43,22 @@ claude plugin details llm-council@josefheld     # component inventory and token 
 ## Repo layout
 
 ```
-.claude-plugin/marketplace.json    the marketplace, lists all five plugins
+.claude-plugin/marketplace.json    the marketplace, lists every plugin
 plugins/<name>/
   .claude-plugin/plugin.json       the plugin manifest
+  README.md                        usage and configuration
   skills/<name>/SKILL.md           the skill itself
 ```
 
-Two deviate, both because they ship a real tool rather than a prompt document. `update-plugins` puts its `SKILL.md` at the plugin root and adds `scripts/`. `statusline` adds `scripts/install-statusline.sh`, the `statusline-command.sh` that Claude Code executes on every redraw, and `test-statusline.sh` next to it.
+Two plugins deviate, both because they ship a real tool rather than a prompt document. `update-plugins` puts its `SKILL.md` at the plugin root and adds `scripts/`. `statusline` adds `scripts/install-statusline.sh`, the `statusline-command.sh` that Claude Code runs on every redraw, and `test-statusline.sh` next to it.
 
 No plugin declares a `version`. That is deliberate: without one the commit SHA acts as the version, so every push reaches installed users. A `version` field would mean nothing updates until the number is bumped by hand. `claude plugin validate` warns about this, and the warning is safe to ignore here.
 
-## License & attribution
+One path rule for anything that writes into `settings.json` or keeps state: never point at `~/.claude/plugins/cache/<marketplace>/<plugin>/<sha>/`. That last element is the commit and it changes with every update. Use the marketplace clone at `~/.claude/plugins/marketplaces/<marketplace>/plugins/<plugin>/`, or a location outside the plugin entirely, the way `fal-image-generator` keeps its venv in `~/.cache`.
 
-MIT, see [LICENSE](./LICENSE).
+## License
 
-`llm-council` is based on Andrej Karpathy's [LLM Council](https://github.com/karpathy/llm-council) methodology, popularized by [Ole Lehmann](https://x.com/itsolelehmann).
+MIT, see [LICENSE](./LICENSE). Third-party attribution sits in the README of the plugin it concerns.
 
 ## About
 
