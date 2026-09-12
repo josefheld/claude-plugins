@@ -31,6 +31,13 @@
       "keywords": ["images", "fal.ai", "flux", "generation"]
     },
     {
+      "name": "statusline",
+      "source": "./plugins/statusline",
+      "description": "A configurable one-line statusline: model, context bar, cost, both rate limits with reset times, git state, session duration. Segments are picked and ordered by environment variable.",
+      "license": "MIT",
+      "keywords": ["statusline", "status-line", "context-window", "rate-limits", "git"]
+    },
+    {
       "name": "update-plugins",
       "source": "./plugins/update-plugins",
       "description": "Refresh every marketplace and then update each installed plugin, because 'claude plugin update' has no --all.",

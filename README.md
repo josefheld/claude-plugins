@@ -1,6 +1,6 @@
 # claude-plugins
 
-`claude plugin update` has no `--all`. Updating twenty installed plugins means twenty commands. That is what `update-plugins` fixes, and it is one of four plugins in this [Claude Code](https://docs.claude.com/en/docs/claude-code) marketplace.
+`claude plugin update` has no `--all`. Updating twenty installed plugins means twenty commands. That is what `update-plugins` fixes, and it is one of five plugins in this [Claude Code](https://docs.claude.com/en/docs/claude-code) marketplace.
 
 ```
 /plugin marketplace add josefheld/claude-plugins
@@ -32,6 +32,7 @@ Drop `--dry-run` and it actually updates. Pick what you want:
 | [`llm-council`](./plugins/llm-council/) | `/plugin install llm-council@josefheld` | Runs a decision past five advisors (Contrarian, First Principles, Expansionist, Outsider, Executor) who analyze it independently, peer-review each other anonymously, and get synthesized into one verdict by a chairman. Adapted from [Karpathy's LLM Council](https://github.com/karpathy/llm-council), using Claude sub-agents with different thinking lenses instead of different models. |
 | [`cc-changelog`](./plugins/cc-changelog/) | `/plugin install cc-changelog@josefheld` | Fetches the latest Claude Code release notes and summarizes only what matters for your stack and role. Builds a profile once, then filters every future changelog through it. |
 | [`fal-image-generator`](./plugins/fal-image-generator/) | `/plugin install fal-image-generator@josefheld` | Generates images via [fal.ai](https://fal.ai) (FLUX family). Text-to-image, image-to-image with a reference, native custom dimensions (1K/2K/4K), WebP/JPG/PNG output. |
+| [`statusline`](./plugins/statusline/) | `/plugin install statusline@josefheld` | A one-line statusline: model with thinking mode, context window bar, cost, both rate limits with reset times, directory, git branch with staged and modified counts, session runtime, active agent. Which segments appear and in which order is one environment variable, not a code edit. Based on [danielmackay/claude-code-statusline](https://github.com/danielmackay/claude-code-statusline). |
 | [`update-plugins`](./plugins/update-plugins/) | `/plugin install update-plugins@josefheld` | Refreshes every marketplace, then updates each installed plugin one by one, because `claude plugin update` has no `--all`. |
 
 Separate plugins on purpose: you only pay the context cost of the ones you install.
@@ -39,6 +40,14 @@ Separate plugins on purpose: you only pay the context cost of the ones you insta
 ## Setup
 
 `llm-council`, `cc-changelog` and `update-plugins` work immediately. `update-plugins` needs `claude` and `node` on your PATH, nothing else.
+
+`statusline` needs `jq` and one command, because a statusline is not a plugin component: Claude Code reads it from `statusLine` in `settings.json`, so something has to write that entry. The plugin's installer does it, after backing the file up:
+
+```bash
+sh ~/.claude/plugins/marketplaces/josefheld/plugins/statusline/scripts/install-statusline.sh
+```
+
+Pass a segment list to get a shorter line (`... install-statusline.sh model,context,cost,git`). Pointing the setting at the plugin directory instead of copying the script to `~/.claude` means plugin updates reach the script too.
 
 `fal-image-generator` calls a paid external API and needs one-time setup:
 
@@ -72,13 +81,13 @@ claude plugin details llm-council@josefheld     # component inventory and token 
 ## Repo layout
 
 ```
-.claude-plugin/marketplace.json    the marketplace, lists all four plugins
+.claude-plugin/marketplace.json    the marketplace, lists all five plugins
 plugins/<name>/
   .claude-plugin/plugin.json       the plugin manifest
   skills/<name>/SKILL.md           the skill itself
 ```
 
-`update-plugins` deviates: its `SKILL.md` sits at the plugin root and it ships `scripts/`, because it is a real tool rather than a prompt document.
+Two deviate, both because they ship a real tool rather than a prompt document. `update-plugins` puts its `SKILL.md` at the plugin root and adds `scripts/`. `statusline` adds `scripts/install-statusline.sh`, the `statusline-command.sh` that Claude Code executes on every redraw, and `test-statusline.sh` next to it.
 
 No plugin declares a `version`. That is deliberate: without one the commit SHA acts as the version, so every push reaches installed users. A `version` field would mean nothing updates until the number is bumped by hand. `claude plugin validate` warns about this, and the warning is safe to ignore here.
 
