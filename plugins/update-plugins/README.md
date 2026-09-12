@@ -17,10 +17,10 @@ If you don't need a skill for this: per-marketplace auto-update under `/plugin` 
 
 ### Via the marketplace (recommended)
 
-update-plugins ships from the [josefheld/claude-skills](https://github.com/josefheld/claude-skills) marketplace:
+update-plugins ships from the [josefheld/claude-plugins](https://github.com/josefheld/claude-plugins) marketplace:
 
 ```bash
-claude plugin marketplace add josefheld/claude-skills
+claude plugin marketplace add josefheld/claude-plugins
 claude plugin install update-plugins@josefheld
 ```
 
@@ -37,8 +37,8 @@ Invoke it as `/update-plugins`. Update it with `claude plugin update update-plug
 No marketplace, but also no version tracking:
 
 ```bash
-git clone https://github.com/josefheld/claude-skills.git
-ln -s "$PWD/claude-skills/plugins/update-plugins" ~/.claude/skills/update-plugins
+git clone https://github.com/josefheld/claude-plugins.git
+ln -s "$PWD/claude-plugins/plugins/update-plugins" ~/.claude/skills/update-plugins
 ```
 
 Invoke it as `/update-plugins`, update it with `git pull`. Note that installed this way it runs as an `@skills-dir` plugin, which the script skips, so it cannot update itself.

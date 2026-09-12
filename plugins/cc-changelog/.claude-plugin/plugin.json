@@ -5,8 +5,8 @@
     "name": "josefheld",
     "url": "https://github.com/josefheld"
   },
-  "homepage": "https://github.com/josefheld/claude-skills",
-  "repository": "https://github.com/josefheld/claude-skills",
+  "homepage": "https://github.com/josefheld/claude-plugins",
+  "repository": "https://github.com/josefheld/claude-plugins",
   "license": "MIT",
   "keywords": ["changelog", "release-notes", "claude-code", "updates"]
 }

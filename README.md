@@ -1,9 +1,9 @@
-# claude-skills
+# claude-plugins
 
-A [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin marketplace. Four plugins, each installable on its own.
+`claude plugin update` has no `--all`. Updating twenty installed plugins means twenty commands. That is what `update-plugins` fixes, and it is one of four plugins in this [Claude Code](https://docs.claude.com/en/docs/claude-code) marketplace.
 
 ```
-/plugin marketplace add josefheld/claude-skills
+/plugin marketplace add josefheld/claude-plugins
 ```
 
 Then pick what you want:
@@ -38,8 +38,8 @@ In your shell profile (`~/.zshrc`, `~/.bashrc`), never in this repo. Not in a `.
 Point a marketplace at your clone instead of at GitHub, then edits take effect on the next session with no push:
 
 ```bash
-git clone https://github.com/josefheld/claude-skills.git
-claude plugin marketplace add ./claude-skills
+git clone https://github.com/josefheld/claude-plugins.git
+claude plugin marketplace add ./claude-plugins
 claude plugin install llm-council@josefheld
 ```
 
