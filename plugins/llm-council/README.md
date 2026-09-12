@@ -2,7 +2,9 @@
 
 One model gives you one answer, and no way to tell whether it is good. This runs a decision past five advisors who think from deliberately incompatible angles, lets them peer-review each other anonymously, and has a chairman turn the whole thing into one verdict.
 
-Adapted from Andrej Karpathy's [LLM Council](https://github.com/karpathy/llm-council), which dispatches the same question to several different models. This does it with Claude sub-agents under different thinking lenses instead.
+Adapted from Andrej Karpathy's [LLM Council](https://github.com/karpathy/llm-council), which dispatches the same question to four different providers. His diversity comes from the models. Here it comes mostly from the lenses, which is a trade rather than a copy: opposed lenses guarantee the disagreement that four similar models often fail to produce, but five lenses on one model also share one set of blind spots.
+
+The Outsider seat closes part of that gap. It runs on a different model family through the Codex CLI, so at least one voice cannot inherit the same gap as the rest. Its brief is to arrive with no context anyway, which makes a process that cannot see your workspace a feature.
 
 ## Install
 
@@ -11,7 +13,9 @@ Adapted from Andrej Karpathy's [LLM Council](https://github.com/karpathy/llm-cou
 /plugin install llm-council@josefheld
 ```
 
-No setup, no dependencies, no API key.
+No setup, no API key.
+
+One optional dependency: if the [Codex CLI](https://github.com/openai/codex) is on your PATH, the Outsider seat uses it. If it is not, that seat falls back to a Claude sub-agent like the other four and the report says the council ran single-model.
 
 ## Use
 
@@ -25,7 +29,7 @@ pressure-test this positioning: "code audits for legacy JS teams"
 What then happens, without further input from you:
 
 1. The question gets framed, with context pulled from the conversation.
-2. Five advisors answer in parallel: the Contrarian, the First Principles Thinker, the Expansionist, the Outsider, the Executor.
+2. Five advisors answer in parallel: the Contrarian, the First Principles Thinker, the Expansionist, the Outsider, the Executor. Four are Claude sub-agents, the Outsider goes to Codex.
 3. Each advisor reviews the other four anonymously, so nobody defers to a thinking style they recognize.
 4. A chairman synthesizes: where the council agrees, where it clashes, which blind spots it caught, the recommendation, and the one thing to do first.
 

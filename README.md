@@ -13,7 +13,7 @@ Five plugins for [Claude Code](https://docs.claude.com/en/docs/claude-code), in 
 |---|---|---|
 | [`statusline`](./plugins/statusline/) | One status line with model, context window, cost, both rate limits, git state and session runtime. Segments are configuration, not a code edit. | `jq`, one install command |
 | [`update-plugins`](./plugins/update-plugins/) | Refreshes every marketplace, then updates each installed plugin one by one, because `claude plugin update` has no `--all`. | `claude`, `node` |
-| [`llm-council`](./plugins/llm-council/) | Runs a decision past five advisors with incompatible thinking lenses, lets them peer-review each other anonymously, and has a chairman synthesize one verdict. | nothing |
+| [`llm-council`](./plugins/llm-council/) | Runs a decision past five advisors with incompatible thinking lenses, lets them peer-review each other anonymously, and has a chairman synthesize one verdict. One of the five runs on a foreign model so the council does not share a blind spot. | nothing, `codex` optional |
 | [`cc-changelog`](./plugins/cc-changelog/) | Fetches the Claude Code release notes and filters every entry through your roles, stack and language. | nothing |
 | [`fal-image-generator`](./plugins/fal-image-generator/) | Generates images via [fal.ai](https://fal.ai) (FLUX): text-to-image, image-to-image, real custom dimensions, WebP/JPG/PNG. Paid API. | `FAL_KEY`, `setup.sh` |
 

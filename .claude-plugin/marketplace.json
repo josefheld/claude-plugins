@@ -12,7 +12,7 @@
     {
       "name": "llm-council",
       "source": "./plugins/llm-council",
-      "description": "Run a decision past five advisors who analyze it independently, peer-review each other anonymously, and get synthesized into one verdict.",
+      "description": "Run a decision past five advisors who analyze it independently, peer-review each other anonymously, and get synthesized into one verdict. Four run as Claude sub-agents, the fifth on a foreign model via Codex so the council does not share one blind spot.",
       "license": "MIT",
       "keywords": ["decision", "review", "council", "brainstorming"]
     },

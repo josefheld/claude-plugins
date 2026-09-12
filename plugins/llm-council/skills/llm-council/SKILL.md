@@ -9,7 +9,7 @@ You ask one AI a question, you get one answer. That answer might be great. It mi
 
 The council fixes this. It runs your question through 5 independent advisors, each thinking from a fundamentally different angle. Then they review each other's work. Then a chairman synthesizes everything into a final recommendation that tells you where the advisors agree, where they clash, and what you should actually do.
 
-This is adapted from Andrej Karpathy's LLM Council. He dispatches queries to multiple models, has them peer-review each other anonymously, then a chairman produces the final answer. We do the same thing inside Claude using sub-agents with different thinking lenses instead of different models.
+This is adapted from Andrej Karpathy's LLM Council. He dispatches queries to four different providers, has them peer-review each other anonymously, then a chairman produces the final answer. His diversity comes from the models. Here it comes mostly from the thinking lenses: four advisors are Claude sub-agents with deliberately opposed perspectives. The fifth, the Outsider, runs on a different model family through the Codex CLI, so the council does not share one set of blind spots.
 
 ---
 
@@ -48,6 +48,8 @@ Looks for upside everyone else is missing. What could be bigger? What adjacent o
 
 ### 4. The Outsider
 Has zero context about you, your field, or your history. Responds purely to what's in front of them. This is the most underrated advisor. Experts develop blind spots. The Outsider catches the curse of knowledge: things that are obvious to you but confusing to everyone else.
+
+This seat runs on a different model family than the other four, via the Codex CLI, so that the council does not share one set of blind spots. See [the Outsider runs on a foreign model](#the-outsider-runs-on-a-foreign-model) in step 2.
 
 ### 5. The Executor
 Only cares about one thing: can this actually be done, and what's the fastest path to doing it? Ignores theory, strategy, and big-picture thinking. The Executor looks at every idea through the lens of "OK but what do you do Monday morning?" If an idea sounds brilliant but has no clear first step, the Executor will say so.
@@ -112,6 +114,42 @@ Respond from your perspective. Be direct and specific. Don't hedge or try to be 
 
 Keep your response between 150-300 words. No preamble. Go straight into your analysis.
 ```
+
+#### the Outsider runs on a foreign model
+
+Four advisors run as Claude sub-agents. The Outsider does not.
+
+Five lenses on one model share one set of blind spots. If the model is wrong about something, all five are wrong about it in five different tones, and the peer review round will not catch it because every reviewer shares the same gap. Karpathy's original council avoids this by querying four different providers. This skill closes part of that gap by sending exactly one seat to a different model family.
+
+The Outsider is the right seat for it. Its whole brief is to arrive with no context, so a process that cannot see the workspace is a feature rather than a limitation.
+
+Run it with the Codex CLI, in parallel with the four sub-agents:
+
+```bash
+codex exec --skip-git-repo-check --sandbox read-only \
+  -o /tmp/council-outsider.txt \
+  "You are the Outsider on an advisory council. You have zero context about this person, their field, or their history. React only to what is in front of you.
+
+A question has been brought to the council:
+
+---
+[framed question]
+---
+
+Say what is unclear, what is assumed without being stated, and what would confuse someone encountering this for the first time. Be direct. Do not hedge. Do not try to be balanced.
+
+Between 150 and 300 words. No preamble."
+```
+
+Read the answer from the output file. Expect roughly 10 to 20 seconds, which is inside the window the four sub-agents need anyway.
+
+Three rules around it:
+
+- **Same language as the question.** Codex answers in whatever language it is prompted in, so pass the framed question unchanged.
+- **Never reveal which seat was foreign** before the peer review is finished. Reviewers who know that Response C came from a different model will weigh it differently, and that defeats the anonymization.
+- **If `codex` is not on PATH, fall back to a Claude sub-agent** like the other four, and note in the report that the council ran single-model. Do not fail the session over it, and do not silently pretend otherwise.
+
+The chairman's report states which model held the Outsider seat. Where the Outsider disagrees with the other four, that disagreement carries more weight than a disagreement among the Claude seats, because it cannot come from a shared blind spot.
 
 ### step 3: peer review (5 sub-agents in parallel)
 
@@ -303,7 +341,8 @@ The user sees the HTML report. The transcript is there if they want to dig deepe
 
 ## important notes
 
-- **Always spawn all 5 advisors in parallel.** Sequential spawning wastes time and lets earlier responses bleed into later ones.
+- **Always start all 5 advisors in parallel.** Four Claude sub-agents plus the Codex call for the Outsider, dispatched together. Sequential dispatch wastes time and lets earlier responses bleed into later ones.
+- **The Outsider seat is the one safeguard against a shared blind spot.** Keep it on a foreign model whenever `codex` is available, and say so in the report when it was not.
 - **Always anonymize for peer review.** If reviewers know which advisor said what, they'll defer to certain thinking styles instead of evaluating on merit.
 - **The chairman can disagree with the majority.** If 4 out of 5 advisors say "do it" but the reasoning of the 1 dissenter is strongest, the chairman should side with the dissenter and explain why.
 - **Don't council trivial questions.** If the user asks something with one right answer, just answer it. The council is for genuine uncertainty where multiple perspectives add value.
