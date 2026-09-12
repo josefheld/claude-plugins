@@ -26,7 +26,13 @@ sh "${CLAUDE_PLUGIN_ROOT}/scripts/install-statusline.sh"
 
 It backs up `settings.json` first (`settings.json.bak-<timestamp>`), refuses to
 touch the file if it is not valid JSON, and prints the resulting `statusLine`
-entry. The statusline appears in the next session, not the current one, so tell
+entry.
+
+`${CLAUDE_PLUGIN_ROOT}` points into `~/.claude/plugins/cache/<marketplace>/<plugin>/<sha>/`,
+and that `<sha>` changes with every plugin update. The installer therefore
+rewrites it to the stable `~/.claude/plugins/marketplaces/<marketplace>/plugins/<plugin>/`
+before writing `settings.json`. Check the path it prints, and never hand-write
+a cache path into `settings.json`. The statusline appears in the next session, not the current one, so tell
 the user to restart Claude Code.
 
 Variants:

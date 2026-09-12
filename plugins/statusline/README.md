@@ -29,6 +29,8 @@ Requires `jq` (`brew install jq` / `apt-get install jq`) and `git` for the branc
 
 Why point at the plugin instead of copying to `~/.claude`: the copy would go stale. This way `claude plugin update statusline@josefheld` also updates the script.
 
+Which plugin path matters. A marketplace install runs out of `~/.claude/plugins/cache/<marketplace>/<plugin>/<sha>/`, and that `<sha>` is the commit, so it changes with every update and the entry would point at a directory that no longer exists. The installer rewrites it to the marketplace clone at `~/.claude/plugins/marketplaces/<marketplace>/plugins/<plugin>/`, which stays put and is refreshed by the same update. It prints the path it used.
+
 ## Configure
 
 Segments are chosen and ordered by `CC_STATUSLINE_SEGMENTS`:

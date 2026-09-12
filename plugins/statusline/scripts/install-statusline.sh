@@ -10,7 +10,25 @@
 #   install-statusline.sh --uninstall            remove the statusLine entry
 set -eu
 
-script=$(cd "$(dirname "$0")/.." && pwd)/statusline-command.sh
+plugin_dir=$(cd "$(dirname "$0")/.." && pwd)
+
+# A marketplace install runs out of a versioned cache directory whose last
+# path element is the commit SHA, so it changes with every plugin update and
+# would leave settings.json pointing at a directory that no longer exists. The
+# marketplace clone that cache was built from sits at a stable path and is
+# refreshed by the same update, so prefer it and fall back to wherever this
+# script actually lives.
+case "$plugin_dir" in
+  */plugins/cache/*/*/*)
+    plugin=${plugin_dir%/*}; plugin=${plugin##*/}   # statusline
+    rest=${plugin_dir%/*/*}                         # .../plugins/cache/<marketplace>
+    marketplace=${rest##*/}
+    stable="${rest%/cache/*}/marketplaces/$marketplace/plugins/$plugin"
+    [ -f "$stable/statusline-command.sh" ] && plugin_dir="$stable"
+    ;;
+esac
+
+script="$plugin_dir/statusline-command.sh"
 settings_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 segments=""
 action="install"
