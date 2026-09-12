@@ -4,9 +4,28 @@
 
 ```
 /plugin marketplace add josefheld/claude-plugins
+/plugin install update-plugins@josefheld
 ```
 
-Then pick what you want:
+Then `/update-plugins` walks the whole list for you:
+
+```console
+$ update-plugins.sh --dry-run
+==> Refreshing marketplaces
+--  cc-changelog@josefheld (dry-run)
+--  code-review@claude-plugins-official (dry-run)
+--  commit-commands@claude-plugins-official (dry-run)
+--  fal-image-generator@josefheld (dry-run)
+--  frontend-design@claude-plugins-official (dry-run)
+--  llm-council@josefheld (dry-run)
+--  playwright@claude-plugins-official (dry-run)
+--  superpowers@superpowers-marketplace (dry-run)
+--  update-plugins@josefheld (dry-run)
+
+Dry-run beendet, nichts veraendert.
+```
+
+Drop `--dry-run` and it actually updates. Pick what you want:
 
 | Plugin | Install | What it does |
 |---|---|---|
